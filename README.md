@@ -1,3 +1,12 @@
+
+1.下載並執行nvidia_smi_exporter
+git clone https://github.com/kevin7674/nvidia_smi_exporter.git
+cd nvidia_smi_exporter
+./nvidia_smi_exporter 9101 &
+
+2.修改 vi /etc/rc.local
+./nvidia_smi_exporter 9101 &
+
 # nvidia_smi_exporter
 
 nvidia-smi metrics exporter for Prometheus
