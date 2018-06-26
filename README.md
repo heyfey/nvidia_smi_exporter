@@ -1,3 +1,6 @@
+# nvidia_smi_exporter
+
+nvidia-smi metrics exporter for Prometheus
 
 # 1.下載並執行nvidia_smi_exporter
 ```
@@ -10,9 +13,8 @@ cd nvidia_smi_exporter
 ./nvidia_smi_exporter 9101 &
 ```
 
-# nvidia_smi_exporter
 
-nvidia-smi metrics exporter for Prometheus
+
 
 ## Build Image
 ```
