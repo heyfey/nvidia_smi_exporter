@@ -16,7 +16,7 @@ cd nvidia_smi_exporter
 
 
 
-## Build Image
+Build Image
 ```
 > docker build -t="nvidia_smi_exporter:0" .
 ```
