@@ -16,12 +16,12 @@ cd nvidia_smi_exporter
 
 
 
-Build Image
+# Build Image
 ```
 > docker build -t="nvidia_smi_exporter:0" .
 ```
 
-## Docker Run
+### Docker Run
 ```
 > nvidia-docker run -d --net="host" nvidia_smi_exporter:0 --restart=always
 ```
