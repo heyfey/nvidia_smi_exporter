@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-smi-exporter
+  labels:
+    app: nvidia-smi-exporter
+spec:
+  selector:
+    matchLabels:
+      name: nvidia-smi-exporter
+  template:
+    metadata:
+      labels:
+        name: nvidia-smi-exporter
+    spec:
+      tolerations:
+      - key: vodascheduler/hostname
+        operator: Exists
+        effect: NoExecute
+      containers:
+      - name: nvidia-smi-exporter
+        image: heyfey/nvidia-smi-exporter
+        ports:
+          - containerPort: 9101
+            hostPort: 9101
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi

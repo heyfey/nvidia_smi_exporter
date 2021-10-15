@@ -2,9 +2,16 @@
 
 nvidia-smi metrics exporter for Prometheus
 
+- [Run directly](#Run-directly)
+- [Run with docker](#Run-with-docker)
+- [Deploy as daemonset in kubernetes cluster](#Deploy-as-daemonset-in-kubernetes-cluster)
+- [Grafana dashboard](#Grafana-dashboard)
+
+## Run directly
+
 ### 1.下載並執行nvidia_smi_exporter
 ```
-git clone https://github.com/kevin7674/nvidia_smi_exporter.git
+git clone https://github.com/heyfey/nvidia_smi_exporter.git
 cd nvidia_smi_exporter
 ./nvidia_smi_exporter 9101 &
 ```
@@ -14,9 +21,9 @@ cd nvidia_smi_exporter
 ```
 
 
+## Run with docker
 
-
-# Build Image
+### Build Image
 ```
 > docker build -t="nvidia_smi_exporter:0" .
 ```
@@ -87,8 +94,35 @@ nvidia-smi --query-gpu=name,index,temperature.gpu,utilization.gpu,utilization.me
 ### Prometheus example config
 
 ```
-- job_name: "gpu_exporter"
+- job_name: "nvidia-smi-exporter"
   static_configs:
   - targets: ['localhost:9101']
 ```
 
+## Deploy as daemonset in kubernetes cluster
+
+```
+kubectl apply -f nvidia_smi_exporter.yaml 
+```
+
+### Prometheus example config
+
+```
+- job_name: 'nvidia-smi-exporter'
+  kubernetes_sd_configs:
+    - role: node
+  relabel_configs:
+  - source_labels: [__address__]
+    regex: '(.*):10250'
+    replacement: '${1}:9101'
+    target_label: __address__
+    action: replace
+```
+
+## Grafana dashboard
+
+import [json](https://github.com/heyfey/nvidia_smi_exporter/blob/master/grafana/NVIDIA-DCGM-nvidia-smi-Exporter-Dashboard-1634288728356.json)
+
+### preview
+
+![](https://i.imgur.com/JyxNYRG.png)
