@@ -1,30 +1,30 @@
 package main
 
 import (
-    "flag"
     "bytes"
     "encoding/csv"
+    "flag"
     "fmt"
-    "net/http"
     "log"
-//    "os"
+    "net/http"
+
+    //    "os"
     "os/exec"
     "strings"
 )
 
-
 // name, index, temperature.gpu, utilization.gpu,
-// utilization.memory, memory.total, memory.free, memory.used
+// utilization.memory, memory.total, memory.free, memory.used, uuid
 
 var (
-        listenAddress string
-        metricsPath string
+    listenAddress string
+    metricsPath   string
 )
 
 func metrics(response http.ResponseWriter, request *http.Request) {
     out, err := exec.Command(
         "nvidia-smi",
-        "--query-gpu=name,index,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used",
+        "--query-gpu=name,index,uuid,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used",
         "--format=csv,noheader,nounits").Output()
 
     if err != nil {
@@ -41,17 +41,23 @@ func metrics(response http.ResponseWriter, request *http.Request) {
         return
     }
 
-    metricList := []string {
+    metricList := []string{
         "temperature.gpu", "utilization.gpu",
         "utilization.memory", "memory.total", "memory.free", "memory.used"}
 
     result := ""
     for _, row := range records {
         name := fmt.Sprintf("%s[%s]", row[0], row[1])
-        for idx, value := range row[2:] {
+        uuid := row[2]
+        for idx, value := range row[3:] {
+            metric := metricList[idx]
             result = fmt.Sprintf(
                 "%s%s%s{gpu=\"%s\"} %s\n", result, "nvidia.",
-                metricList[idx], name, value)
+                metric, name, value)
+
+            result = fmt.Sprintf(
+                "%s%s%s%s{uuid=\"%s\"} %s\n", result, "nvidia.",
+                metric, ".uuid", uuid, value)
         }
     }
 
@@ -59,16 +65,16 @@ func metrics(response http.ResponseWriter, request *http.Request) {
 }
 
 func init() {
-	flag.StringVar(&listenAddress, "web.listen-address", ":9101", "Address to listen on")
-	flag.StringVar(&metricsPath, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-	flag.Parse()
+    flag.StringVar(&listenAddress, "web.listen-address", ":9101", "Address to listen on")
+    flag.StringVar(&metricsPath, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+    flag.Parse()
 }
 
 func main() {
-//    addr := ":9101"
-//    if len(os.Args) > 1 {
-//        addr = ":" + os.Args[1]
-//    }
+    //    addr := ":9101"
+    //    if len(os.Args) > 1 {
+    //        addr = ":" + os.Args[1]
+    //    }
 
     http.HandleFunc(metricsPath, metrics)
     err := http.ListenAndServe(listenAddress, nil)
